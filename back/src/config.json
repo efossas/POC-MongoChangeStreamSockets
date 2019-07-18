@@ -1,0 +1,8 @@
+{
+  "mongo": {
+    "url": "mongodb://mongo_1,mongo_2,mongo_3/?replicaSet=appReplicaSet"
+  },
+  "http": {
+    "port": 80
+  }
+}

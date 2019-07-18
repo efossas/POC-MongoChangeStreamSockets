@@ -1,0 +1,72 @@
+version: "3.7"
+
+services:
+  front:
+    build: ./front
+    volumes: 
+      - ${PWD}/front/src:/project
+    ports: 
+      - 8080:80
+    networks:
+      - app
+    restart: on-failure
+  back:
+    build: ./back
+    volumes: 
+      - ${PWD}/back/src:/project
+    ports: 
+      - 8082:80
+    networks:
+      - app
+      - mongo
+    restart: on-failure
+  sockets:
+    build: ./sockets
+    volumes: 
+      - ${PWD}/sockets/src:/project
+    ports: 
+      - 8083:80
+    networks:
+      - app
+      - mongo
+    restart: on-failure
+  redis:
+    image: redis:latest
+    networks:
+      - app
+    restart: on-failure
+  mongo_1:
+    image: mongo:4
+    command: mongod --replSet appReplicaSet
+    volumes:
+      - ${PWD}/mongo/rs_config.js:/docker-entrypoint-initdb.d/rs_config.js
+    networks:
+      - mongo
+    extra_hosts: 
+      - "mongo_1:127.0.0.1"
+    restart: on-failure
+  mongo_2:
+    image: mongo:4
+    command: mongod --replSet appReplicaSet
+    networks:
+      - mongo
+    restart: on-failure
+  mongo_3:
+    image: mongo:4
+    command: mongod --replSet appReplicaSet
+    networks:
+      - mongo
+    restart: on-failure
+  mongo_express:
+    image: mongo-express
+    environment:
+      ME_CONFIG_MONGODB_SERVER: "mongo_1,mongo_2,mongo3"
+    ports:
+      - 8081:8081
+    networks:
+      - mongo
+    restart: on-failure
+
+networks:
+  app:
+  mongo:

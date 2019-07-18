@@ -1,0 +1,66 @@
+<html>
+  <head>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+      <script>
+        function connect() {
+          if (!window.socket) window.socket = io.connect('http://localhost:8083');
+
+          let form = document.getElementById('socketForm');
+          let uuid = form.elements.namedItem("uuid").value;
+
+          if (window.uuid) {
+            console.info('leaving: ' + uuid);
+            window.socket.emit('LeaveRoom', [uuid]);
+          }
+
+          window.uuid = uuid;
+          console.info('connecting to: ' + uuid);
+          window.socket.emit('JoinRoom', [uuid]);
+
+          console.info('listening to: test');
+          window.socket.on("test", (data) => {
+            console.info(data);
+            document.getElementById('data').innerText = JSON.stringify(data);
+          });
+
+          return false;
+        }
+
+        function update() {
+          let form = document.getElementById('dataForm');
+          let uuid = form.elements.namedItem("uuid").value;
+          let data = form.elements.namedItem("data").value;
+
+          console.info('updating: ' + uuid);
+
+          let url = "http://localhost:8082/update"
+          fetch(url, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              uuid: uuid,
+              data: data
+            })
+          })
+          .then(response => response.json());
+
+          return false;
+        }
+      </script>
+  </head>
+  <body>
+    <form id="socketForm" onsubmit="return connect()">
+      <input name="uuid" type="text" placeholder="uuid" style="width:400px"/>
+      <input name="submit" type="submit" value="Connect" />
+    </form>
+    <form id="dataForm" onsubmit="return update()">
+      <input name="uuid" type="text" placeholder="uuid" style="width:400px"/>
+      <input name="data" type="text" placeholder="data" style="width:400px"/>
+      <input name="submit" type="submit" value="Update" />
+    </form>
+    <h3>Change Stream Received:</h3>
+    <pre id="data"></pre>
+  </body>
+</html>
