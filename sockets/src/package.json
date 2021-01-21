@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "mongodb": "^3.2.7",
-    "socket.io": "^2.1.1",
+    "socket.io": "^2.4.0",
     "socket.io-redis": "^5.2.0",
     "uuid-mongodb": "^2.0.2"
   }
